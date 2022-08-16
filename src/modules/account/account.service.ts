@@ -10,13 +10,14 @@ import geoip from 'geoip-lite';
 import uaParse from 'ua-parser-js';
 import {Email} from '../common/types/email/email';
 import {AccountAdapter} from './account.adapter';
+import {EvmAddress} from '../common/types/evm-address';
 
 const ACCOUNT_NOT_FOUND = 'Account not found';
 const CODE_NOT_GENERATED = 'Code not generated';
 const WRONG_PASSWORD = 'Wrong password';
 
 export class AccountService {
-    static async createAccount(data: {password: string, email: Email}): Promise<PrismaClient.Account> {
+    static async createAccount(data: {password: string, email: Email, address: EvmAddress}): Promise<PrismaClient.Account> {
         const passwordHash = await AuthUtilsService.hash(data.password + config.server.salt);
 
         return await prisma.account.create({
@@ -24,7 +25,8 @@ export class AccountService {
                 email: data.email.value,
                 passwordHash,
                 status: config.disableRegisterEmailConfirmation ? AccountStatus.Active : AccountStatus.Disabled,
-                rolesArrayJson: JSON.stringify([AccountRole.User])
+                rolesArrayJson: JSON.stringify([AccountRole.User]),
+                address: data.address.value
             }
         });
     }

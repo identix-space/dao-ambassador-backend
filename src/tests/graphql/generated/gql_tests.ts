@@ -75,10 +75,12 @@ export type Mutation = {
   changePassword: Scalars['Boolean'];
   echo: Scalars['String'];
   generateEmailCode: GenerateEmailCodeResult;
+  generateOtc: Scalars['String'];
   login: AuthResult;
   logout: Scalars['Boolean'];
   register: AuthResult;
   resetPassword: Scalars['Boolean'];
+  verifyOtc: AuthResult;
 };
 
 
@@ -104,6 +106,11 @@ export type MutationGenerateEmailCodeArgs = {
 };
 
 
+export type MutationGenerateOtcArgs = {
+  address: Scalars['String'];
+};
+
+
 export type MutationLoginArgs = {
   email: Scalars['String'];
   password: Scalars['String'];
@@ -125,6 +132,13 @@ export type MutationResetPasswordArgs = {
   email: Scalars['String'];
   emailCode: Scalars['String'];
   newPassword: Scalars['String'];
+};
+
+
+export type MutationVerifyOtcArgs = {
+  address: Scalars['String'];
+  code: Scalars['String'];
+  signature: Scalars['String'];
 };
 
 export type Node = {

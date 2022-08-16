@@ -33,6 +33,7 @@ import serveIndex from 'serve-index';
 import basicAuth from 'express-basic-auth';
 import GraphQLError from './modules/common/graphql-error';
 import {AccountAdapter} from './modules/account/account.adapter';
+import OneTimeCodeRepository from './modules/one-time-code.repository';
 
 const log = getLogger('server');
 export const app = express();
@@ -98,6 +99,8 @@ if (config.server.graphql.mocksEnabled) {
         store.reset();
     }, RESET_MOCK_STORE_INTERVAL);
 }
+
+const oneTimeCodeRepository = new OneTimeCodeRepository(prisma);
 
 export const server = new CostAnalysisApolloServer({
     schema,
@@ -180,7 +183,8 @@ export const server = new CostAnalysisApolloServer({
                 userAgent: !session.userAgent ? undefined : uaParse(session.userAgent),
                 address: address.length > 0 ? address : undefined,
                 account: AccountAdapter.dbToGraphQL(account)
-            }
+            },
+            oneTimeCodeRepository
         };
     },
     plugins: [

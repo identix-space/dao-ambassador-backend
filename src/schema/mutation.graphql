@@ -10,6 +10,9 @@ type Mutation {
         sessionIds: [Int!]
     ): Boolean!
     changePassword(password: String!, newPassword: String!): Boolean!
+
+    generateOtc(address: String!): String!
+    verifyOtc(address: String!, code: String!, signature: String!): AuthResult!
 }
 
 type GenerateEmailCodeResult {

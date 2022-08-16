@@ -50,7 +50,8 @@
         "serve-index": "^1.9.1",
         "ua-parser-js": "^1.0.2",
         "validate.js": "^0.13.1",
-        "validator": "^13.7.0"
+        "validator": "^13.7.0",
+        "web3": "^1.7.5"
     },
     "devDependencies": {
         "@graphql-codegen/add": "^3.2.1",

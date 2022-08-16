@@ -8,6 +8,8 @@ import {SessionsService} from '../modules/sessions.service';
 import {AccountService} from '../modules/account/account.service';
 import {AuthGuard} from './guard/auth.guard';
 import {Email} from '../modules/common/types/email/email';
+import {EvmCryptoService} from '../modules/evm-crypto.service';
+import {EvmAddress} from '../modules/common/types/evm-address';
 
 const log = getLogger('mutationResolver');
 
@@ -16,27 +18,6 @@ const mutationResolver: Resolvers = {
         echo: (parent, args) => {
             log.trace({args});
             return args.text;
-        },
-        register: async (parent, {email, password}, {prisma, request}) => {
-            const valid = AuthUtilsService.validateEmailPassword({email, password});
-            if (valid) {
-                throw new GraphQLError({message: valid, code: StatusCodes.BAD_REQUEST, internalData: {email}});
-            }
-
-            try {
-                if (!config.disableRegisterEmailConfirmation) {
-                    await SessionsService.createNewEmailCode(new Email(email));
-                }
-                const account = await AccountService.createAccount({password, email: new Email(email)});
-
-                return await SessionsService.generateNewAuth({prisma, account, request});
-            } catch (error) {
-                throw new GraphQLError({
-                    message: 'Account may be already exists',
-                    code: StatusCodes.CONFLICT,
-                    internalData: {error}
-                });
-            }
         },
         generateEmailCode: async (parent, {email}) => AccountService.generateEmailCode(new Email(email)),
         activateAccount: async (parent, {email, code}) => AccountService.activate({email: new Email(email), code}),
@@ -76,6 +57,47 @@ const mutationResolver: Resolvers = {
         changePassword: async (parent, {password, newPassword}, {session}) => {
             AuthGuard.assertIfNotAuthenticated(session);
             return await AccountService.changePassword(session!.account.id, password, newPassword);
+        },
+        generateOtc: async (parent, {address}, {oneTimeCodeRepository}) => {
+            return oneTimeCodeRepository.createNewOtc(address);
+        },
+        verifyOtc: async (parent, {address, code, signature}, {oneTimeCodeRepository, prisma, request}) => {
+            const valid = oneTimeCodeRepository.verifyOtc(address, code);
+            if (!valid) {
+                throw new GraphQLError({
+                    message: 'Wrong code',
+                    code: StatusCodes.FORBIDDEN,
+                    internalData: {address, code}
+                });
+            }
+            const verified = EvmCryptoService.verifySignature(signature, code, address);
+            if (!verified) {
+                throw new GraphQLError({
+                    message: 'Wrong signature',
+                    code: StatusCodes.FORBIDDEN,
+                    internalData: {address, code}
+                });
+            }
+
+            const account = await prisma.account.findFirst({where: {address}});
+            if (account) {
+                return SessionsService.generateNewAuth({
+                    prisma,
+                    request,
+                    account
+                });
+            } else {
+                const newAccount = await AccountService.createAccount({
+                    password: code,
+                    email: new Email(`${address}@onetime.code`),
+                    address: new EvmAddress(address)
+                });
+                return SessionsService.generateNewAuth({
+                    prisma,
+                    request,
+                    account: newAccount
+                });
+            }
         }
     }
 };
