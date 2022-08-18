@@ -13,6 +13,22 @@ type Mutation {
 
     generateOtc(address: String!): String!
     verifyOtc(address: String!, code: String!, signature: String!): AuthResult!
+
+    addEventCollectionCreate(
+        txHash: String!,
+        contractAddress: String!,
+        collectionName: String!,
+        collectionSymbol: String!
+    ): Boolean!
+    addEventTokenCreate(
+        txHash: String!,
+        collectionContractAddress: String!,
+        tokenId: String!,
+        description: String!,
+        soulAddress: String!,
+        metadata: Json!
+    ): Boolean!
+    addEventSoulCreate(txHash: String!, soulAddress: String!): Boolean!
 }
 
 type GenerateEmailCodeResult {

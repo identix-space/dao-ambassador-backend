@@ -3,6 +3,18 @@ type Query {
     error: Int
     whoami: Account!
     currentSession: AccountSession!
+    token(collectionAddress: String!, tokenId: String!): SbtToken!
+}
+
+type SbtToken {
+    id: Int!
+    createdAt:  Date!
+    updatedAt:  Date!
+    collection: SbtCollection!
+    idInCollection: String!
+    creator: Account!
+    targetSoul: Soul!
+    metadata: Json!
 }
 
 type AccountSession implements Node {

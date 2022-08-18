@@ -21,13 +21,20 @@ export type Scalars = {
 
 export type Account = Node & {
   __typename?: 'Account';
+  collections?: Maybe<Array<SbtCollection>>;
   createdAt: Scalars['Date'];
   email: Scalars['String'];
   id: Scalars['Int'];
   roles: Array<AccountRole>;
   sessions?: Maybe<Array<AccountSession>>;
+  souls?: Maybe<Array<Soul>>;
   status: AccountStatus;
   updatedAt: Scalars['Date'];
+};
+
+
+export type AccountCollectionsArgs = {
+  onlyMine: Scalars['Boolean'];
 };
 
 export enum AccountRole {
@@ -72,6 +79,9 @@ export type GenerateEmailCodeResult = {
 export type Mutation = {
   __typename?: 'Mutation';
   activateAccount: Scalars['Boolean'];
+  addEventCollectionCreate: Scalars['Boolean'];
+  addEventSoulCreate: Scalars['Boolean'];
+  addEventTokenCreate: Scalars['Boolean'];
   changePassword: Scalars['Boolean'];
   echo: Scalars['String'];
   generateEmailCode: GenerateEmailCodeResult;
@@ -87,6 +97,30 @@ export type Mutation = {
 export type MutationActivateAccountArgs = {
   code: Scalars['String'];
   email: Scalars['String'];
+};
+
+
+export type MutationAddEventCollectionCreateArgs = {
+  collectionName: Scalars['String'];
+  collectionSymbol: Scalars['String'];
+  contractAddress: Scalars['String'];
+  txHash: Scalars['String'];
+};
+
+
+export type MutationAddEventSoulCreateArgs = {
+  soulAddress: Scalars['String'];
+  txHash: Scalars['String'];
+};
+
+
+export type MutationAddEventTokenCreateArgs = {
+  collectionContractAddress: Scalars['String'];
+  description: Scalars['String'];
+  metadata: Scalars['Json'];
+  soulAddress: Scalars['String'];
+  tokenId: Scalars['String'];
+  txHash: Scalars['String'];
 };
 
 
@@ -152,12 +186,53 @@ export type Query = {
   currentSession: AccountSession;
   debug?: Maybe<Scalars['Json']>;
   error?: Maybe<Scalars['Int']>;
+  token: SbtToken;
   whoami: Account;
 };
 
 
 export type QueryDebugArgs = {
   showAdditionalInfo: Scalars['Boolean'];
+};
+
+
+export type QueryTokenArgs = {
+  collectionAddress: Scalars['String'];
+  tokenId: Scalars['String'];
+};
+
+export type SbtCollection = {
+  __typename?: 'SbtCollection';
+  address: Scalars['String'];
+  createdAt: Scalars['Date'];
+  creator: Account;
+  id: Scalars['Int'];
+  name: Scalars['String'];
+  symbol: Scalars['String'];
+  tokens?: Maybe<Array<SbtToken>>;
+  updatedAt: Scalars['Date'];
+};
+
+export type SbtToken = {
+  __typename?: 'SbtToken';
+  collection: SbtCollection;
+  createdAt: Scalars['Date'];
+  creator: Account;
+  id: Scalars['Int'];
+  idInCollection: Scalars['String'];
+  metadata: Scalars['Json'];
+  targetSoul: Soul;
+  updatedAt: Scalars['Date'];
+};
+
+export type Soul = {
+  __typename?: 'Soul';
+  address: Scalars['String'];
+  createdAt: Scalars['Date'];
+  id: Scalars['Int'];
+  owner: Account;
+  relatedTokens?: Maybe<Array<SbtToken>>;
+  updatedAt: Scalars['Date'];
 };
 
 export type UserAgent = {

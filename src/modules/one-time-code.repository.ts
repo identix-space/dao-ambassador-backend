@@ -1,25 +1,30 @@
 import {PrismaClient} from '@prisma/client';
 import {AuthUtilsService} from './common/auth-utils.service';
+import {EvmAddress} from './common/types/evm-address';
 
 export default class OneTimeCodeRepository {
     constructor(private prisma: PrismaClient) {
     }
 
-    async createNewOtc(address: string): Promise<string> {
+    async createNewOtc(address: EvmAddress): Promise<string> {
         await this.clearExpiredOtcs();
 
         const code = AuthUtilsService.generateOneTimeCode();
+
+        // delete all codes for this address
+        await this.prisma.oneTimeCode.deleteMany({where: {address: address.value}});
+
         // expires in 5 minutes
         // eslint-disable-next-line no-magic-numbers
         const expiresAt = new Date(new Date().getTime() + 5 * 60 * 1000);
         await this.prisma.oneTimeCode.create({
             data: {
-                address,
+                address: address.value,
                 code,
                 expiresAt
             }
         });
-        const prefix = 'Please verify your account by signing this code: ';
+        const prefix = 'Please verify your account by signing this message. Nonce:';
         return prefix + code;
     }
 

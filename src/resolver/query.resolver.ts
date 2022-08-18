@@ -48,6 +48,16 @@ const resolvers: Resolvers = {
             } else {
                 return session;
             }
+        },
+        token: async (parent, {collectionAddress, tokenId}, {session, prisma}) => {
+            AuthGuard.assertIfNotAuthenticated(session);
+            const tokenFromDb = await prisma.sbtToken.findFirst({where: {collection: {address: collectionAddress}, idInCollection: tokenId}});
+
+            if (!tokenFromDb) {
+                throw new GraphQLError({message: 'Not found', code: StatusCodes.NOT_FOUND});
+            }
+
+            return tokenFromDb;
         }
     }
 };

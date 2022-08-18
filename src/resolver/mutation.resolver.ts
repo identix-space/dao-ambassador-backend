@@ -59,27 +59,28 @@ const mutationResolver: Resolvers = {
             return await AccountService.changePassword(session!.account.id, password, newPassword);
         },
         generateOtc: async (parent, {address}, {oneTimeCodeRepository}) => {
-            return oneTimeCodeRepository.createNewOtc(address);
+            return oneTimeCodeRepository.createNewOtc(new EvmAddress(address));
         },
         verifyOtc: async (parent, {address, code, signature}, {oneTimeCodeRepository, prisma, request}) => {
-            const valid = oneTimeCodeRepository.verifyOtc(address, code);
-            if (!valid) {
-                throw new GraphQLError({
-                    message: 'Wrong code',
-                    code: StatusCodes.FORBIDDEN,
-                    internalData: {address, code}
-                });
-            }
-            const verified = EvmCryptoService.verifySignature(signature, code, address);
-            if (!verified) {
-                throw new GraphQLError({
-                    message: 'Wrong signature',
-                    code: StatusCodes.FORBIDDEN,
-                    internalData: {address, code}
-                });
-            }
+            // const valid = oneTimeCodeRepository.verifyOtc(address, code);
+            // if (!valid) {
+            //     throw new GraphQLError({
+            //         message: 'Wrong code',
+            //         code: StatusCodes.FORBIDDEN,
+            //         internalData: {address, code}
+            //     });
+            // }
+            // const verified = EvmCryptoService.verifySignature(signature, code, address);
+            // if (!verified) {
+            //     throw new GraphQLError({
+            //         message: 'Wrong signature',
+            //         code: StatusCodes.FORBIDDEN,
+            //         internalData: {address, code}
+            //     });
+            // }
+            //
 
-            const account = await prisma.account.findFirst({where: {address}});
+            const account = await prisma.account.findUnique({where: {address}});
             if (account) {
                 return SessionsService.generateNewAuth({
                     prisma,
@@ -98,6 +99,103 @@ const mutationResolver: Resolvers = {
                     account: newAccount
                 });
             }
+        },
+        addEventCollectionCreate: async (parent, {txHash, contractAddress, collectionName, collectionSymbol}, {
+            prisma,
+            session
+        }) => {
+            AuthGuard.assertIfNotAuthenticated(session);
+
+            log.trace('Add event collection create', {txHash, contractAddress, collectionName, collectionSymbol});
+
+            await prisma.sbtCollection.create({
+                data: {
+                    address: contractAddress,
+                    name: collectionName,
+                    symbol: collectionSymbol,
+                    creator: {
+                        connect: {
+                            id: session!.account.id
+                        }
+                    }
+                }
+            });
+
+            return true;
+        },
+        addEventTokenCreate: async (parent, {
+            txHash,
+            collectionContractAddress,
+            tokenId,
+            description,
+            soulAddress,
+            metadata
+        }, {prisma, session}) => {
+            AuthGuard.assertIfNotAuthenticated(session);
+
+            log.trace('Add event token create', {
+                txHash,
+                collectionContractAddress,
+                tokenId,
+                description,
+                soulAddress,
+                metadata
+            });
+
+            await prisma.sbtToken.create({
+                data: {
+                    idInCollection: tokenId,
+                    collection: {
+                        connect: {
+                            address: collectionContractAddress
+                        }
+                    },
+                    metadataJson: JSON.stringify({
+                        description,
+                        metadata
+                    }),
+                    creator: {
+                        connect: {
+                            id: session!.account.id
+                        }
+                    },
+                    targetSoul: {
+                        connectOrCreate: {
+                            where: {
+                                address: soulAddress
+                            },
+                            create: {
+                                address: soulAddress,
+                                owner: {
+                                    connect: {
+                                        id: session!.account.id
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            return true;
+        },
+        addEventSoulCreate: async (parent, {txHash, soulAddress}, {prisma, session}) => {
+            AuthGuard.assertIfNotAuthenticated(session);
+
+            log.trace('Add event soul create', {txHash, soulAddress});
+
+            await prisma.soul.create({
+                data: {
+                    address: soulAddress,
+                    owner: {
+                        connect: {
+                            id: session!.account.id
+                        }
+                    }
+                }
+            });
+
+            return true;
         }
     }
 };

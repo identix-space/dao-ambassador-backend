@@ -9,12 +9,12 @@ services:
             - ./data:/app/data:rw
             - ./src/config/config.ts:/app/src/config/config.ts:ro
         ports:
-            - "4000:4000"
-            - "5555:5555"
+            - "4020:4000"
+            - "5525:5555"
     db_admin:
         image: dbeaver/cloudbeaver
         ports:
-            - '5000:8978'
+            - '5020:8978'
         volumes:
             - ./data:/opt/data:rw
             - ./data/db_admin:/opt/cloudbeaver/workspace

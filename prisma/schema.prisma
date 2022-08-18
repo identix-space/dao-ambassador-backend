@@ -20,9 +20,13 @@ model Account {
   rolesArrayJson String
 
   status  String @default("DISABLED")
-  address String
+  address String @unique
 
   sessions AccountSession[]
+
+  sbtCollections SbtCollection[]
+  sbtTokens      SbtToken[]
+  souls          Soul[]
 }
 
 model EmailCode {
@@ -71,4 +75,51 @@ model OneTimeCode {
   code      String   @unique
   address   String
   expiresAt DateTime
+}
+
+model SbtCollection {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  address String @unique
+
+  name   String
+  symbol String
+
+  creator   Account @relation(fields: [creatorId], references: [id])
+  creatorId Int
+
+  tokens SbtToken[]
+}
+
+model SbtToken {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  collection      SbtCollection @relation(fields: [sbtCollectionId], references: [id])
+  sbtCollectionId Int
+
+  idInCollection String
+
+  creator   Account @relation(fields: [creatorId], references: [id])
+  creatorId Int
+
+  targetSoul   Soul @relation(fields: [targetSoulId], references: [id])
+  targetSoulId Int
+
+  metadataJson String
+}
+
+model Soul {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  address String  @unique
+  owner   Account @relation(fields: [ownerId], references: [id])
+  ownerId Int
+
+  relatedTokens SbtToken[]
 }

@@ -21,13 +21,20 @@ export type Scalars = {
 
 export type Account = Node & {
   __typename?: 'Account';
+  collections?: Maybe<Array<SbtCollection>>;
   createdAt: Scalars['Date'];
   email: Scalars['String'];
   id: Scalars['Int'];
   roles: Array<AccountRole>;
   sessions?: Maybe<Array<AccountSession>>;
+  souls?: Maybe<Array<Soul>>;
   status: AccountStatus;
   updatedAt: Scalars['Date'];
+};
+
+
+export type AccountCollectionsArgs = {
+  onlyMine: Scalars['Boolean'];
 };
 
 export enum AccountRole {
@@ -72,6 +79,9 @@ export type GenerateEmailCodeResult = {
 export type Mutation = {
   __typename?: 'Mutation';
   activateAccount: Scalars['Boolean'];
+  addEventCollectionCreate: Scalars['Boolean'];
+  addEventSoulCreate: Scalars['Boolean'];
+  addEventTokenCreate: Scalars['Boolean'];
   changePassword: Scalars['Boolean'];
   echo: Scalars['String'];
   generateEmailCode: GenerateEmailCodeResult;
@@ -87,6 +97,30 @@ export type Mutation = {
 export type MutationActivateAccountArgs = {
   code: Scalars['String'];
   email: Scalars['String'];
+};
+
+
+export type MutationAddEventCollectionCreateArgs = {
+  collectionName: Scalars['String'];
+  collectionSymbol: Scalars['String'];
+  contractAddress: Scalars['String'];
+  txHash: Scalars['String'];
+};
+
+
+export type MutationAddEventSoulCreateArgs = {
+  soulAddress: Scalars['String'];
+  txHash: Scalars['String'];
+};
+
+
+export type MutationAddEventTokenCreateArgs = {
+  collectionContractAddress: Scalars['String'];
+  description: Scalars['String'];
+  metadata: Scalars['Json'];
+  soulAddress: Scalars['String'];
+  tokenId: Scalars['String'];
+  txHash: Scalars['String'];
 };
 
 
@@ -152,12 +186,53 @@ export type Query = {
   currentSession: AccountSession;
   debug?: Maybe<Scalars['Json']>;
   error?: Maybe<Scalars['Int']>;
+  token: SbtToken;
   whoami: Account;
 };
 
 
 export type QueryDebugArgs = {
   showAdditionalInfo: Scalars['Boolean'];
+};
+
+
+export type QueryTokenArgs = {
+  collectionAddress: Scalars['String'];
+  tokenId: Scalars['String'];
+};
+
+export type SbtCollection = {
+  __typename?: 'SbtCollection';
+  address: Scalars['String'];
+  createdAt: Scalars['Date'];
+  creator: Account;
+  id: Scalars['Int'];
+  name: Scalars['String'];
+  symbol: Scalars['String'];
+  tokens?: Maybe<Array<SbtToken>>;
+  updatedAt: Scalars['Date'];
+};
+
+export type SbtToken = {
+  __typename?: 'SbtToken';
+  collection: SbtCollection;
+  createdAt: Scalars['Date'];
+  creator: Account;
+  id: Scalars['Int'];
+  idInCollection: Scalars['String'];
+  metadata: Scalars['Json'];
+  targetSoul: Soul;
+  updatedAt: Scalars['Date'];
+};
+
+export type Soul = {
+  __typename?: 'Soul';
+  address: Scalars['String'];
+  createdAt: Scalars['Date'];
+  id: Scalars['Int'];
+  owner: Account;
+  relatedTokens?: Maybe<Array<SbtToken>>;
+  updatedAt: Scalars['Date'];
 };
 
 export type UserAgent = {
@@ -277,6 +352,9 @@ export type ResolversTypes = ResolversObject<{
   Mutation: ResolverTypeWrapper<{}>;
   Node: ResolversTypes['Account'] | ResolversTypes['AccountSession'];
   Query: ResolverTypeWrapper<{}>;
+  SbtCollection: ResolverTypeWrapper<Partial<SbtCollection>>;
+  SbtToken: ResolverTypeWrapper<Partial<SbtToken>>;
+  Soul: ResolverTypeWrapper<Partial<Soul>>;
   String: ResolverTypeWrapper<Partial<Scalars['String']>>;
   UserAgent: ResolverTypeWrapper<Partial<UserAgent>>;
   UserAgentBrowser: ResolverTypeWrapper<Partial<UserAgentBrowser>>;
@@ -299,6 +377,9 @@ export type ResolversParentTypes = ResolversObject<{
   Mutation: {};
   Node: ResolversParentTypes['Account'] | ResolversParentTypes['AccountSession'];
   Query: {};
+  SbtCollection: Partial<SbtCollection>;
+  SbtToken: Partial<SbtToken>;
+  Soul: Partial<Soul>;
   String: Partial<Scalars['String']>;
   UserAgent: Partial<UserAgent>;
   UserAgentBrowser: Partial<UserAgentBrowser>;
@@ -316,11 +397,13 @@ export type CostDirectiveArgs = {
 export type CostDirectiveResolver<Result, Parent, ContextType = GraphQLContext, Args = CostDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
 
 export type AccountResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Account'] = ResolversParentTypes['Account']> = ResolversObject<{
+  collections?: Resolver<Maybe<Array<ResolversTypes['SbtCollection']>>, ParentType, ContextType, RequireFields<AccountCollectionsArgs, 'onlyMine'>>;
   createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   roles?: Resolver<Array<ResolversTypes['AccountRole']>, ParentType, ContextType>;
   sessions?: Resolver<Maybe<Array<ResolversTypes['AccountSession']>>, ParentType, ContextType>;
+  souls?: Resolver<Maybe<Array<ResolversTypes['Soul']>>, ParentType, ContextType>;
   status?: Resolver<ResolversTypes['AccountStatus'], ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -360,6 +443,9 @@ export interface JsonScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes
 
 export type MutationResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = ResolversObject<{
   activateAccount?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationActivateAccountArgs, 'code' | 'email'>>;
+  addEventCollectionCreate?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationAddEventCollectionCreateArgs, 'collectionName' | 'collectionSymbol' | 'contractAddress' | 'txHash'>>;
+  addEventSoulCreate?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationAddEventSoulCreateArgs, 'soulAddress' | 'txHash'>>;
+  addEventTokenCreate?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationAddEventTokenCreateArgs, 'collectionContractAddress' | 'description' | 'metadata' | 'soulAddress' | 'tokenId' | 'txHash'>>;
   changePassword?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationChangePasswordArgs, 'newPassword' | 'password'>>;
   echo?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationEchoArgs, 'text'>>;
   generateEmailCode?: Resolver<ResolversTypes['GenerateEmailCodeResult'], ParentType, ContextType, RequireFields<MutationGenerateEmailCodeArgs, 'email'>>;
@@ -382,7 +468,42 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   currentSession?: Resolver<ResolversTypes['AccountSession'], ParentType, ContextType>;
   debug?: Resolver<Maybe<ResolversTypes['Json']>, ParentType, ContextType, RequireFields<QueryDebugArgs, 'showAdditionalInfo'>>;
   error?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  token?: Resolver<ResolversTypes['SbtToken'], ParentType, ContextType, RequireFields<QueryTokenArgs, 'collectionAddress' | 'tokenId'>>;
   whoami?: Resolver<ResolversTypes['Account'], ParentType, ContextType>;
+}>;
+
+export type SbtCollectionResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['SbtCollection'] = ResolversParentTypes['SbtCollection']> = ResolversObject<{
+  address?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  creator?: Resolver<ResolversTypes['Account'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  symbol?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  tokens?: Resolver<Maybe<Array<ResolversTypes['SbtToken']>>, ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type SbtTokenResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['SbtToken'] = ResolversParentTypes['SbtToken']> = ResolversObject<{
+  collection?: Resolver<ResolversTypes['SbtCollection'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  creator?: Resolver<ResolversTypes['Account'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  idInCollection?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  metadata?: Resolver<ResolversTypes['Json'], ParentType, ContextType>;
+  targetSoul?: Resolver<ResolversTypes['Soul'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type SoulResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Soul'] = ResolversParentTypes['Soul']> = ResolversObject<{
+  address?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  owner?: Resolver<ResolversTypes['Account'], ParentType, ContextType>;
+  relatedTokens?: Resolver<Maybe<Array<ResolversTypes['SbtToken']>>, ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
 export type UserAgentResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['UserAgent'] = ResolversParentTypes['UserAgent']> = ResolversObject<{
@@ -428,6 +549,9 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   Mutation?: MutationResolvers<ContextType>;
   Node?: NodeResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
+  SbtCollection?: SbtCollectionResolvers<ContextType>;
+  SbtToken?: SbtTokenResolvers<ContextType>;
+  Soul?: SoulResolvers<ContextType>;
   UserAgent?: UserAgentResolvers<ContextType>;
   UserAgentBrowser?: UserAgentBrowserResolvers<ContextType>;
   UserAgentCpu?: UserAgentCpuResolvers<ContextType>;

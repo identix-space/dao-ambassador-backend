@@ -170,5 +170,6 @@ export default {
         user: 'marianne.collier@ethereal.email',
         password: 'dbsrgD3q13GYBGm11B'
     },
-    disableRegisterEmailConfirmation: false
+    disableRegisterEmailConfirmation: false,
+    nodeUrl: 'https://polygon-rpc.com'
 };

@@ -24,7 +24,7 @@ export class AccountService {
             data: {
                 email: data.email.value,
                 passwordHash,
-                status: config.disableRegisterEmailConfirmation ? AccountStatus.Active : AccountStatus.Disabled,
+                status: AccountStatus.Active,
                 rolesArrayJson: JSON.stringify([AccountRole.User]),
                 address: data.address.value
             }

@@ -28,6 +28,34 @@ type Account implements Node {
     roles: [AccountRole!]!
 
     sessions: [AccountSession!]
+
+    souls: [Soul!]
+    collections(onlyMine: Boolean!): [SbtCollection!]
+}
+
+type Soul {
+    id: Int!
+    createdAt: Date!
+    updatedAt: Date!
+
+    address: String!
+    owner: Account!
+
+    relatedTokens: [SbtToken!]
+}
+
+type SbtCollection {
+    id: Int!
+    createdAt: Date!
+    updatedAt: Date!
+
+    address: String!
+
+    name: String!
+    symbol: String!
+
+    creator: Account!
+    tokens: [SbtToken!]
 }
 
 enum AccountRole {

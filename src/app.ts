@@ -22,7 +22,8 @@ async function main() {
     });
 
     app.listen({port: config.server.port}, () => {
-        log.info(`*** ${packageJson.name} ready at http://127.0.0.1:${config.server.port}${server.graphqlPath} ***`);
+        // noinspection HttpUrlsUsage
+        log.info(`*** ${packageJson.name} ready at http://127.31.0.1:${config.server.port}${server.graphqlPath} ***`);
     });
 
     const CLEAR_EXPIRED_SESSIONS_INTERVAL = 10000;
