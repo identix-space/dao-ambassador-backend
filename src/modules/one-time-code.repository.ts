@@ -10,6 +10,8 @@ export default class OneTimeCodeRepository {
         await this.clearExpiredOtcs();
 
         const code = AuthUtilsService.generateOneTimeCode();
+        const prefix = 'Please verify your account by signing this message. Nonce:';
+        const fullCode = prefix + code;
 
         // delete all codes for this address
         await this.prisma.oneTimeCode.deleteMany({where: {address: address.value}});
@@ -20,12 +22,11 @@ export default class OneTimeCodeRepository {
         await this.prisma.oneTimeCode.create({
             data: {
                 address: address.value,
-                code,
+                code: fullCode,
                 expiresAt
             }
         });
-        const prefix = 'Please verify your account by signing this message. Nonce:';
-        return prefix + code;
+        return fullCode;
     }
 
     async clearExpiredOtcs(): Promise<void> {
