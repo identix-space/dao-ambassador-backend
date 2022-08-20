@@ -85,12 +85,10 @@ export type Mutation = {
   changePassword: Scalars['Boolean'];
   echo: Scalars['String'];
   generateEmailCode: GenerateEmailCodeResult;
-  generateOtc: Scalars['String'];
   login: AuthResult;
   logout: Scalars['Boolean'];
   register: AuthResult;
   resetPassword: Scalars['Boolean'];
-  verifyOtc: AuthResult;
 };
 
 
@@ -104,13 +102,11 @@ export type MutationAddEventCollectionCreateArgs = {
   collectionName: Scalars['String'];
   collectionSymbol: Scalars['String'];
   contractAddress: Scalars['String'];
-  txHash: Scalars['String'];
 };
 
 
 export type MutationAddEventSoulCreateArgs = {
   soulAddress: Scalars['String'];
-  txHash: Scalars['String'];
 };
 
 
@@ -120,7 +116,6 @@ export type MutationAddEventTokenCreateArgs = {
   metadata: Scalars['Json'];
   soulAddress: Scalars['String'];
   tokenId: Scalars['String'];
-  txHash: Scalars['String'];
 };
 
 
@@ -137,11 +132,6 @@ export type MutationEchoArgs = {
 
 export type MutationGenerateEmailCodeArgs = {
   email: Scalars['String'];
-};
-
-
-export type MutationGenerateOtcArgs = {
-  address: Scalars['String'];
 };
 
 
@@ -166,13 +156,6 @@ export type MutationResetPasswordArgs = {
   email: Scalars['String'];
   emailCode: Scalars['String'];
   newPassword: Scalars['String'];
-};
-
-
-export type MutationVerifyOtcArgs = {
-  address: Scalars['String'];
-  code: Scalars['String'];
-  signature: Scalars['String'];
 };
 
 export type Node = {

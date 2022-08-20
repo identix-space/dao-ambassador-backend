@@ -85,12 +85,10 @@ export type Mutation = {
   changePassword: Scalars['Boolean'];
   echo: Scalars['String'];
   generateEmailCode: GenerateEmailCodeResult;
-  generateOtc: Scalars['String'];
   login: AuthResult;
   logout: Scalars['Boolean'];
   register: AuthResult;
   resetPassword: Scalars['Boolean'];
-  verifyOtc: AuthResult;
 };
 
 
@@ -104,13 +102,11 @@ export type MutationAddEventCollectionCreateArgs = {
   collectionName: Scalars['String'];
   collectionSymbol: Scalars['String'];
   contractAddress: Scalars['String'];
-  txHash: Scalars['String'];
 };
 
 
 export type MutationAddEventSoulCreateArgs = {
   soulAddress: Scalars['String'];
-  txHash: Scalars['String'];
 };
 
 
@@ -120,7 +116,6 @@ export type MutationAddEventTokenCreateArgs = {
   metadata: Scalars['Json'];
   soulAddress: Scalars['String'];
   tokenId: Scalars['String'];
-  txHash: Scalars['String'];
 };
 
 
@@ -137,11 +132,6 @@ export type MutationEchoArgs = {
 
 export type MutationGenerateEmailCodeArgs = {
   email: Scalars['String'];
-};
-
-
-export type MutationGenerateOtcArgs = {
-  address: Scalars['String'];
 };
 
 
@@ -166,13 +156,6 @@ export type MutationResetPasswordArgs = {
   email: Scalars['String'];
   emailCode: Scalars['String'];
   newPassword: Scalars['String'];
-};
-
-
-export type MutationVerifyOtcArgs = {
-  address: Scalars['String'];
-  code: Scalars['String'];
-  signature: Scalars['String'];
 };
 
 export type Node = {
@@ -443,18 +426,16 @@ export interface JsonScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes
 
 export type MutationResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = ResolversObject<{
   activateAccount?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationActivateAccountArgs, 'code' | 'email'>>;
-  addEventCollectionCreate?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationAddEventCollectionCreateArgs, 'collectionName' | 'collectionSymbol' | 'contractAddress' | 'txHash'>>;
-  addEventSoulCreate?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationAddEventSoulCreateArgs, 'soulAddress' | 'txHash'>>;
-  addEventTokenCreate?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationAddEventTokenCreateArgs, 'collectionContractAddress' | 'description' | 'metadata' | 'soulAddress' | 'tokenId' | 'txHash'>>;
+  addEventCollectionCreate?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationAddEventCollectionCreateArgs, 'collectionName' | 'collectionSymbol' | 'contractAddress'>>;
+  addEventSoulCreate?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationAddEventSoulCreateArgs, 'soulAddress'>>;
+  addEventTokenCreate?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationAddEventTokenCreateArgs, 'collectionContractAddress' | 'description' | 'metadata' | 'soulAddress' | 'tokenId'>>;
   changePassword?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationChangePasswordArgs, 'newPassword' | 'password'>>;
   echo?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationEchoArgs, 'text'>>;
   generateEmailCode?: Resolver<ResolversTypes['GenerateEmailCodeResult'], ParentType, ContextType, RequireFields<MutationGenerateEmailCodeArgs, 'email'>>;
-  generateOtc?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationGenerateOtcArgs, 'address'>>;
   login?: Resolver<ResolversTypes['AuthResult'], ParentType, ContextType, RequireFields<MutationLoginArgs, 'email' | 'password'>>;
   logout?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, Partial<MutationLogoutArgs>>;
   register?: Resolver<ResolversTypes['AuthResult'], ParentType, ContextType, RequireFields<MutationRegisterArgs, 'email' | 'password'>>;
   resetPassword?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationResetPasswordArgs, 'email' | 'emailCode' | 'newPassword'>>;
-  verifyOtc?: Resolver<ResolversTypes['AuthResult'], ParentType, ContextType, RequireFields<MutationVerifyOtcArgs, 'address' | 'code' | 'signature'>>;
 }>;
 
 export type NodeResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Node'] = ResolversParentTypes['Node']> = ResolversObject<{

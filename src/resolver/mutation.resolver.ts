@@ -8,8 +8,6 @@ import {SessionsService} from '../modules/sessions.service';
 import {AccountService} from '../modules/account/account.service';
 import {AuthGuard} from './guard/auth.guard';
 import {Email} from '../modules/common/types/email/email';
-import {EvmAddress} from '../modules/common/types/evm-address';
-import {EvmCryptoService} from '../modules/evm-crypto.service';
 
 const log = getLogger('mutationResolver');
 
@@ -104,13 +102,13 @@ const mutationResolver: Resolvers = {
         //         });
         //     }
         // },
-        addEventCollectionCreate: async (parent, {txHash, contractAddress, collectionName, collectionSymbol}, {
+        addEventCollectionCreate: async (parent, {contractAddress, collectionName, collectionSymbol}, {
             prisma,
             session
         }) => {
             AuthGuard.assertIfNotAuthenticated(session);
 
-            log.trace('Add event collection create', {txHash, contractAddress, collectionName, collectionSymbol});
+            log.trace('Add event collection create', {contractAddress, collectionName, collectionSymbol});
 
             await prisma.sbtCollection.create({
                 data: {
@@ -128,7 +126,6 @@ const mutationResolver: Resolvers = {
             return true;
         },
         addEventTokenCreate: async (parent, {
-            txHash,
             collectionContractAddress,
             tokenId,
             description,
@@ -138,7 +135,6 @@ const mutationResolver: Resolvers = {
             AuthGuard.assertIfNotAuthenticated(session);
 
             log.trace('Add event token create', {
-                txHash,
                 collectionContractAddress,
                 tokenId,
                 description,
@@ -183,10 +179,10 @@ const mutationResolver: Resolvers = {
 
             return true;
         },
-        addEventSoulCreate: async (parent, {txHash, soulAddress}, {prisma, session}) => {
+        addEventSoulCreate: async (parent, {soulAddress}, {prisma, session}) => {
             AuthGuard.assertIfNotAuthenticated(session);
 
-            log.trace('Add event soul create', {txHash, soulAddress});
+            log.trace('Add event soul create', {soulAddress});
 
             await prisma.soul.create({
                 data: {
