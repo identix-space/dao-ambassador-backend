@@ -20,6 +20,5 @@ export class EvmAddress {
         const regexp = new RegExp('^0x[0-9a-fA-F]{40}$');
         return regexp.test(value);
     }
-
 }
 

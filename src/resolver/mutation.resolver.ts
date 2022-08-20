@@ -58,52 +58,52 @@ const mutationResolver: Resolvers = {
             AuthGuard.assertIfNotAuthenticated(session);
             return await AccountService.changePassword(session!.account.id, password, newPassword);
         },
-        generateOtc: async (parent, {address}, {oneTimeCodeRepository}) => {
-            const code = await oneTimeCodeRepository.createNewOtc(new EvmAddress(address));
-            log.trace({code});
-            return code;
-        },
-        verifyOtc: async (parent, {address, code, signature}, {oneTimeCodeRepository, prisma, request}) => {
-            log.trace({address, code, signature});
-            const valid = await oneTimeCodeRepository.verifyOtc(new EvmAddress(address).value, code);
-            if (!valid) {
-                throw new GraphQLError({
-                    message: 'Wrong code',
-                    code: StatusCodes.FORBIDDEN,
-                    internalData: {address, code}
-                });
-            }
-            const verified = EvmCryptoService.verifySignature(code, signature, address);
-            if (!verified) {
-                throw new GraphQLError({
-                    message: 'Wrong signature',
-                    code: StatusCodes.FORBIDDEN,
-                    internalData: {address, code}
-                });
-            }
-
-            const fakeEmail = `${address}@onetime.code`;
-            const account = await prisma.account.findUnique({where: {address: new EvmAddress(address).value}});
-            if (account) {
-                return SessionsService.generateNewAuth({
-                    prisma,
-                    request,
-                    account
-                });
-            } else {
-                log.trace('Creating new account, address: ', address);
-                const newAccount = await AccountService.createAccount({
-                    password: code,
-                    email: new Email(fakeEmail),
-                    address: new EvmAddress(address)
-                });
-                return SessionsService.generateNewAuth({
-                    prisma,
-                    request,
-                    account: newAccount
-                });
-            }
-        },
+        // generateOtc: async (parent, {address}, {oneTimeCodeRepository}) => {
+        //     const code = await oneTimeCodeRepository.createNewOtc(new EvmAddress(address));
+        //     log.trace({code});
+        //     return code;
+        // },
+        // verifyOtc: async (parent, {address, code, signature}, {oneTimeCodeRepository, prisma, request}) => {
+        //     log.trace({address, code, signature});
+        //     const valid = await oneTimeCodeRepository.verifyOtc(new EvmAddress(address).value, code);
+        //     if (!valid) {
+        //         throw new GraphQLError({
+        //             message: 'Wrong code',
+        //             code: StatusCodes.FORBIDDEN,
+        //             internalData: {address, code}
+        //         });
+        //     }
+        //     const verified = EvmCryptoService.verifySignature(code, signature, address);
+        //     if (!verified) {
+        //         throw new GraphQLError({
+        //             message: 'Wrong signature',
+        //             code: StatusCodes.FORBIDDEN,
+        //             internalData: {address, code}
+        //         });
+        //     }
+        //
+        //     const fakeEmail = `${address}@onetime.code`;
+        //     const account = await prisma.account.findUnique({where: {address: new EvmAddress(address).value}});
+        //     if (account) {
+        //         return SessionsService.generateNewAuth({
+        //             prisma,
+        //             request,
+        //             account
+        //         });
+        //     } else {
+        //         log.trace('Creating new account, address: ', address);
+        //         const newAccount = await AccountService.createAccount({
+        //             password: code,
+        //             email: new Email(fakeEmail),
+        //             address: new EvmAddress(address)
+        //         });
+        //         return SessionsService.generateNewAuth({
+        //             prisma,
+        //             request,
+        //             account: newAccount
+        //         });
+        //     }
+        // },
         addEventCollectionCreate: async (parent, {txHash, contractAddress, collectionName, collectionSymbol}, {
             prisma,
             session

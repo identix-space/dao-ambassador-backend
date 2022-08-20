@@ -20,21 +20,25 @@ import {prisma} from './modules/common/prisma.service';
 import {mocksService} from './modules/common/mocks.service';
 import {addMocksToSchema, createMockStore} from '@graphql-tools/mock';
 import {makeExecutableSchema} from '@graphql-tools/schema';
-import {ApolloServerPluginLandingPageDisabled, ApolloServerPluginLandingPageGraphQLPlayground} from 'apollo-server-core';
-import {AccountStatus} from './generated/graphql_api';
+import {
+    ApolloServerPluginLandingPageDisabled,
+    ApolloServerPluginLandingPageGraphQLPlayground
+} from 'apollo-server-core';
+import {AccountSession} from './generated/graphql_api';
 import {GraphQLContext} from './IContext';
 import path from 'path';
 import multer from 'multer';
 import {nanoid} from 'nanoid';
 import {AddressInfo} from 'net';
-import uaParse from 'ua-parser-js';
-import geoip, {Lookup} from 'geoip-lite';
 import serveIndex from 'serve-index';
 import basicAuth from 'express-basic-auth';
 import GraphQLError from './modules/common/graphql-error';
 import {AccountAdapter} from './modules/account/account.adapter';
 import OneTimeCodeRepository from './modules/one-time-code.repository';
 import {ChainRepository} from './modules/chain/chain.repository';
+import {EvmAddress} from './modules/common/types/evm-address';
+import {AccountService} from './modules/account/account.service';
+import {Email} from './modules/common/types/email/email';
 
 const log = getLogger('server');
 export const app = express();
@@ -44,7 +48,7 @@ app.use('/logs',
         authorizeAsync: true,
         authorizer: (username, password, cb) => {
             // eslint-disable-next-line security/detect-object-injection
-            const userFromConfig: string = (config.server.logsServe.users as {[index: string]: string})[username];
+            const userFromConfig: string = (config.server.logsServe.users as { [index: string]: string })[username];
 
             // eslint-disable-next-line security/detect-possible-timing-attacks
             if (userFromConfig === password) {
@@ -126,66 +130,31 @@ export const server = new CostAnalysisApolloServer({
     // eslint-disable-next-line complexity,sonarjs/cognitive-complexity
     context: async ({req}): Promise<GraphQLContext> => {
         RequestLoggerService.logGraphQL(req);
-        let authHeader = req.header('authorization');
+        const address = req.header('address');
 
-        const BEARER_PREFIX = 'bearer ';
-        if (authHeader?.toLowerCase().startsWith(BEARER_PREFIX)) {
-            authHeader = authHeader?.slice(BEARER_PREFIX.length);
-        }
-
-        const session = authHeader && await prisma.accountSession.findFirst({
-            where: {token: authHeader},
-            include: {account: true}
-        });
-
-        if (session) {
-            if (new Date().getTime() > session.expiresAt.getTime()) {
-                throw new GraphQLError({
-                    message: 'Session expired',
-                    code: StatusCodes.UNAUTHORIZED
-                });
-            }
-
-            if (!session.account) {
-                throw new GraphQLError({
-                    message: 'Account not found',
-                    code: StatusCodes.NOT_FOUND
-                });
-            }
-        } else if (authHeader) {
+        if (!address) {
             throw new GraphQLError({
-                message: 'Session not found',
-                code: StatusCodes.UNAUTHORIZED
+                message: 'Address is required',
+                code: StatusCodes.BAD_REQUEST
             });
         }
 
-        const account = !session ? undefined : {
-            ...session.account,
-            status: session.account.status as AccountStatus,
-            sessions: null
-        };
-
-        let location: Lookup | null = null;
-        if (session) {
-            location = geoip.lookup(session.ipAddr || '');
-        }
-        let address = '';
-        if (location) {
-            address = location.country;
-            if (location.city.length > 0) {
-                address = `${address} (${location.city})`;
-            }
+        let account = await prisma.account.findUnique({where: {address: new EvmAddress(address).value}});
+        if (!account) {
+            log.trace('Creating new account, address: ', address);
+            account = await AccountService.createAccount({
+                password: '',
+                email: new Email(`${address}@fake.mail`),
+                address: new EvmAddress(address)
+            });
         }
 
         return {
             prisma,
             request: req,
-            session: !session || !account ? undefined : {
-                ...session,
-                userAgent: !session.userAgent ? undefined : uaParse(session.userAgent),
-                address: address.length > 0 ? address : undefined,
+            session: {
                 account: AccountAdapter.dbToGraphQL(account)
-            },
+            } as AccountSession,
             oneTimeCodeRepository,
             chainRepository
         };

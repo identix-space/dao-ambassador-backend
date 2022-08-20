@@ -11,8 +11,8 @@ type Mutation {
     ): Boolean!
     changePassword(password: String!, newPassword: String!): Boolean!
 
-    generateOtc(address: String!): String!
-    verifyOtc(address: String!, code: String!, signature: String!): AuthResult!
+#    generateOtc(address: String!): String!
+#    verifyOtc(address: String!, code: String!, signature: String!): AuthResult!
 
     addEventCollectionCreate(
         txHash: String!,
