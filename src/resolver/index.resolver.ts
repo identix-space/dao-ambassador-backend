@@ -45,7 +45,10 @@ const resolvers: Resolvers = {
                 }
                 const mineCollections = await prisma.sbtCollection.findMany({where: {creator: {id: parent.id}}});
 
-                return mineCollections.concat(tokensRelatedToAccount.map(token => token.collection));
+                const allCollections = mineCollections.concat(tokensRelatedToAccount.map(token => token.collection));
+
+                // remove collections with same id
+                return allCollections.filter((collection, index, self) => index === self.findIndex(c => c.id === collection.id));
             }
         },
         souls: async (parent, args, {session, prisma}) => {
