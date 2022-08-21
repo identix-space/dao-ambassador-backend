@@ -14,6 +14,8 @@ type Mutation {
 #    generateOtc(address: String!): String!
 #    verifyOtc(address: String!, code: String!, signature: String!): AuthResult!
 
+    metadataCreate(metadata: Json!): Int!
+
     addEventCollectionCreate(
         contractAddress: String!,
         collectionName: String!,
@@ -24,7 +26,7 @@ type Mutation {
         tokenId: String!,
         description: String!,
         soulAddress: String!,
-        metadata: Json!
+        metadataId: Int!
     ): Boolean!
     addEventSoulCreate(soulAddress: String!): Boolean!
 }

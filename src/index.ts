@@ -42,6 +42,22 @@ import {Email} from './modules/common/types/email/email';
 
 const log = getLogger('server');
 export const app = express();
+
+app.get('/metadata/:id', async (req, res) => {
+    const id = req.params.id;
+    const idNumber = parseInt(id, 10);
+    if (Number.isNaN(idNumber)) {
+        res.status(StatusCodes.BAD_REQUEST).json({error: 'Invalid id'});
+        return;
+    }
+    const metadata = await prisma.metadata.findFirst({where: {id: idNumber}});
+    if (!metadata) {
+        res.status(StatusCodes.NOT_FOUND).json({error: 'Metadata not found'});
+    } else {
+        res.status(StatusCodes.OK).json(JSON.parse(metadata.valueJson));
+    }
+});
+
 const logsDir = path.join(__dirname, '..', 'data', 'logs');
 app.use('/logs',
     basicAuth({

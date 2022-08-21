@@ -109,7 +109,18 @@ model SbtToken {
   targetSoul   Soul @relation(fields: [targetSoulId], references: [id])
   targetSoulId Int
 
-  metadataJson String
+  metadata   Metadata @relation(fields: [metadataId], references: [id])
+  metadataId Int
+}
+
+model Metadata {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  valueJson String
+
+  sbtTokens  SbtToken[]
 }
 
 model Soul {

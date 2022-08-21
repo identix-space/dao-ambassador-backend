@@ -105,12 +105,12 @@ const resolvers: Resolvers = {
         metadata: async (parent, args, {session, prisma}) => {
             AuthGuard.assertIfNotAuthenticated(session);
 
-            const result = await prisma.sbtToken.findFirst({where: {id: parent.id}});
+            const result = await prisma.sbtToken.findFirst({where: {id: parent.id}, include: {metadata: true}});
             if (!result) {
                 throw new GraphQLError({message: 'Not found', code: StatusCodes.NOT_FOUND});
             }
 
-            return JSON.parse(result.metadataJson);
+            return JSON.parse(result.metadata.valueJson);
         },
         creator: async (parent, args, {session, prisma}) => {
             AuthGuard.assertIfNotAuthenticated(session);

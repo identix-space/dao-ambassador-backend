@@ -87,6 +87,7 @@ export type Mutation = {
   generateEmailCode: GenerateEmailCodeResult;
   login: AuthResult;
   logout: Scalars['Boolean'];
+  metadataCreate: Scalars['Int'];
   register: AuthResult;
   resetPassword: Scalars['Boolean'];
 };
@@ -113,7 +114,7 @@ export type MutationAddEventSoulCreateArgs = {
 export type MutationAddEventTokenCreateArgs = {
   collectionContractAddress: Scalars['String'];
   description: Scalars['String'];
-  metadata: Scalars['Json'];
+  metadataId: Scalars['Int'];
   soulAddress: Scalars['String'];
   tokenId: Scalars['String'];
 };
@@ -143,6 +144,11 @@ export type MutationLoginArgs = {
 
 export type MutationLogoutArgs = {
   sessionIds?: InputMaybe<Array<Scalars['Int']>>;
+};
+
+
+export type MutationMetadataCreateArgs = {
+  metadata: Scalars['Json'];
 };
 
 

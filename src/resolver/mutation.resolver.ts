@@ -130,7 +130,7 @@ const mutationResolver: Resolvers = {
             tokenId,
             description,
             soulAddress,
-            metadata
+            metadataId
         }, {prisma, session}) => {
             AuthGuard.assertIfNotAuthenticated(session);
 
@@ -139,21 +139,20 @@ const mutationResolver: Resolvers = {
                 tokenId,
                 description,
                 soulAddress,
-                metadata
+                metadataId
             });
 
             await prisma.sbtToken.create({
                 data: {
                     idInCollection: tokenId,
+                    metadata: {
+                        connect: {id: metadataId}
+                    },
                     collection: {
                         connect: {
                             address: collectionContractAddress
                         }
                     },
-                    metadataJson: JSON.stringify({
-                        description,
-                        metadata
-                    }),
                     creator: {
                         connect: {
                             id: session!.account.id
@@ -196,6 +195,10 @@ const mutationResolver: Resolvers = {
             });
 
             return true;
+        },
+        metadataCreate: async (parent, {metadata}, {prisma}) => {
+            const dbRecord = await prisma.metadata.create({data: {valueJson: JSON.stringify(metadata)}});
+            return dbRecord.id;
         }
     }
 };

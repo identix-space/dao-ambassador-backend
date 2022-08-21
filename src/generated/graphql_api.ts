@@ -87,6 +87,7 @@ export type Mutation = {
   generateEmailCode: GenerateEmailCodeResult;
   login: AuthResult;
   logout: Scalars['Boolean'];
+  metadataCreate: Scalars['Int'];
   register: AuthResult;
   resetPassword: Scalars['Boolean'];
 };
@@ -113,7 +114,7 @@ export type MutationAddEventSoulCreateArgs = {
 export type MutationAddEventTokenCreateArgs = {
   collectionContractAddress: Scalars['String'];
   description: Scalars['String'];
-  metadata: Scalars['Json'];
+  metadataId: Scalars['Int'];
   soulAddress: Scalars['String'];
   tokenId: Scalars['String'];
 };
@@ -143,6 +144,11 @@ export type MutationLoginArgs = {
 
 export type MutationLogoutArgs = {
   sessionIds?: InputMaybe<Array<Scalars['Int']>>;
+};
+
+
+export type MutationMetadataCreateArgs = {
+  metadata: Scalars['Json'];
 };
 
 
@@ -428,12 +434,13 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   activateAccount?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationActivateAccountArgs, 'code' | 'email'>>;
   addEventCollectionCreate?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationAddEventCollectionCreateArgs, 'collectionName' | 'collectionSymbol' | 'contractAddress'>>;
   addEventSoulCreate?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationAddEventSoulCreateArgs, 'soulAddress'>>;
-  addEventTokenCreate?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationAddEventTokenCreateArgs, 'collectionContractAddress' | 'description' | 'metadata' | 'soulAddress' | 'tokenId'>>;
+  addEventTokenCreate?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationAddEventTokenCreateArgs, 'collectionContractAddress' | 'description' | 'metadataId' | 'soulAddress' | 'tokenId'>>;
   changePassword?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationChangePasswordArgs, 'newPassword' | 'password'>>;
   echo?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationEchoArgs, 'text'>>;
   generateEmailCode?: Resolver<ResolversTypes['GenerateEmailCodeResult'], ParentType, ContextType, RequireFields<MutationGenerateEmailCodeArgs, 'email'>>;
   login?: Resolver<ResolversTypes['AuthResult'], ParentType, ContextType, RequireFields<MutationLoginArgs, 'email' | 'password'>>;
   logout?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, Partial<MutationLogoutArgs>>;
+  metadataCreate?: Resolver<ResolversTypes['Int'], ParentType, ContextType, RequireFields<MutationMetadataCreateArgs, 'metadata'>>;
   register?: Resolver<ResolversTypes['AuthResult'], ParentType, ContextType, RequireFields<MutationRegisterArgs, 'email' | 'password'>>;
   resetPassword?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationResetPasswordArgs, 'email' | 'emailCode' | 'newPassword'>>;
 }>;
