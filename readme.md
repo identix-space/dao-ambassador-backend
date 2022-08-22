@@ -1,7 +1,9 @@
-![](.github/img.png)
+# About the repo
 
-Simple lightweight GraphQL server on Node.JS which can be used as a basis backend for a new projects.
-[Prisma.io](https://www.prisma.io) and SQLite (postgres and others DBMS available too) uses as base for data storage.
+This is the backend for DAO Ambassador app developed for the BUIDL IT web3 hackathon https://buidlit.polygon.technology/.
+
+**App link**: https://sbt.identix.space/
+**Read more**: https://github.com/identix-space/dao-ambassador-frontend
 
 # Get started (TL;DR)
 
